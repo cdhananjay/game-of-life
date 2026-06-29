@@ -1,17 +1,7 @@
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 
 const rows = 10;
 const cols = 10;
-
-function start(
-  grid: boolean[][],
-  setGrid: React.Dispatch<React.SetStateAction<boolean[][]>>,
-) {
-  const final = takeCommon(killCells(grid), birthCells(grid));
-  setGrid(final);
-}
-
-function stop() {}
 
 function neighbourCount(grid: boolean[][], r: number, c: number) {
   let count = 0;
@@ -38,36 +28,17 @@ function neighbourCount(grid: boolean[][], r: number, c: number) {
   return count;
 }
 
-function takeCommon(grid1: boolean[][], grid2: boolean[][]) {
-  const final = Array.from({ length: rows }, () => Array(cols).fill(false));
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      if (grid1[r][c] || grid2[r][c]) final[r][c] = true;
-    }
-  }
-  return final;
-}
-
-function killCells(grid: boolean[][]) {
+function getNextGen(grid: boolean[][]) {
   const temp = grid.map((row) => [...row]);
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
+      const neighbours = neighbourCount(grid, r, c);
       if (grid[r][c]) {
-        if (neighbourCount(grid, r, c) <= 1) {
+        if (neighbours <= 1 || neighbours >= 4) {
           temp[r][c] = false;
         }
-      }
-    }
-  }
-  return temp;
-}
-
-function birthCells(grid: boolean[][]) {
-  const temp = Array.from({ length: rows }, () => Array(cols).fill(false));
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      if (!grid[r][c]) {
-        if (neighbourCount(grid, r, c) === 3) {
+      } else {
+        if (neighbours === 3) {
           temp[r][c] = true;
         }
       }
@@ -80,6 +51,18 @@ function App() {
   const [grid, setGrid] = useState<boolean[][]>(
     Array.from({ length: rows }, () => Array(cols).fill(false)),
   );
+  const [isRunning, setIsRunning] = useState(false);
+
+  useEffect(() => {
+    if (!isRunning) return;
+
+    const id = setInterval(() => {
+      setGrid((prev) => getNextGen(prev));
+    }, 500);
+
+    return () => clearInterval(id);
+  }, [isRunning]);
+
   return (
     <main>
       {grid.map((row, r) => {
@@ -104,11 +87,16 @@ function App() {
         game of life{" "}
         <button
           className="border bg-green-500"
-          onClick={() => start(grid, setGrid)}
+          onClick={() => {
+            setIsRunning(true);
+          }}
         >
           start
         </button>{" "}
-        <button className="border bg-red-500" onClick={stop}>
+        <button
+          className="border bg-red-500"
+          onClick={() => setIsRunning(false)}
+        >
           stop
         </button>
       </div>
