@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 
-function neighbourCount(grid: boolean[][], r: number, c: number, rows: number, cols: number) {
+function neighbourCount(
+  grid: boolean[][],
+  r: number,
+  c: number,
+  rows: number,
+  cols: number,
+) {
   let count = 0;
   //top
   if (r - 1 >= 0 && r - 1 < rows) {
@@ -88,7 +94,7 @@ function App() {
     }, 500);
 
     return () => clearInterval(id);
-  }, [isRunning]);
+  }, [isRunning, rows, cols]);
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-8 p-4">
@@ -143,20 +149,26 @@ function App() {
           disabled={isRunning}
           type="number"
           placeholder="rows"
-          onChange={(e)=>{if (Number(e.target.value) >= 1) setRows(Number(e.target.value))}} 
+          onChange={(e) => {
+            if (Number(e.target.value) >= 1) setRows(Number(e.target.value));
+          }}
         />
         <input
           className="rounded-lg bg-zinc-600 px-6 py-2 font-medium text-white transition-colors hover:bg-zinc-500 active:bg-zinc-700 disabled:opacity-40"
           disabled={isRunning}
           type="number"
           placeholder="cols"
-          onChange={(e)=>{if (Number(e.target.value) >= 1) setCols(Number(e.target.value))}} 
+          onChange={(e) => {
+            if (Number(e.target.value) >= 1) setCols(Number(e.target.value));
+          }}
         />
       </div>
       <div className="flex gap-4">
         <button
           className="rounded-lg bg-zinc-600 px-6 py-2 font-medium text-white transition-colors hover:bg-zinc-500 active:bg-zinc-700 disabled:opacity-40"
-          onClick={() => setGrid(Array.from({ length: rows }, () => Array(cols).fill(false)))}
+          onClick={() =>
+            setGrid(Array.from({ length: rows }, () => Array(cols).fill(false)))
+          }
           disabled={isRunning}
         >
           Apply
