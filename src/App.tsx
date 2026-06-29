@@ -7,7 +7,8 @@ function start(
   grid: boolean[][],
   setGrid: React.Dispatch<React.SetStateAction<boolean[][]>>,
 ) {
-  killCells(grid, setGrid);
+  const final = takeCommon(killCells(grid), birthCells(grid));
+  setGrid(final);
 }
 
 function stop() {}
@@ -37,10 +38,17 @@ function neighbourCount(grid: boolean[][], r: number, c: number) {
   return count;
 }
 
-function killCells(
-  grid: boolean[][],
-  setGrid: React.Dispatch<React.SetStateAction<boolean[][]>>,
-) {
+function takeCommon(grid1: boolean[][], grid2: boolean[][]) {
+  const final = Array.from({ length: rows }, () => Array(cols).fill(false));
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (grid1[r][c] || grid2[r][c]) final[r][c] = true;
+    }
+  }
+  return final;
+}
+
+function killCells(grid: boolean[][]) {
   const temp = grid.map((row) => [...row]);
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
@@ -51,7 +59,21 @@ function killCells(
       }
     }
   }
-  setGrid(temp);
+  return temp;
+}
+
+function birthCells(grid: boolean[][]) {
+  const temp = Array.from({ length: rows }, () => Array(cols).fill(false));
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (!grid[r][c]) {
+        if (neighbourCount(grid, r, c) === 3) {
+          temp[r][c] = true;
+        }
+      }
+    }
+  }
+  return temp;
 }
 
 function App() {
